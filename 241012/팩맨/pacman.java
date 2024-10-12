@@ -53,8 +53,11 @@ public class Main {
             board[packman[0]][packman[1]][0]++;
 
             // 4. 몬스터 시체 소멸
-            for (Ghost g : glist) {
-                g.remove();
+            for (int j=glist.size()-1; j>=0; j--) {
+                if(glist.get(j).turn == 0) {
+                    board[glist.get(j).x][glist.get(j).y][2]--;
+                    glist.remove(j);
+                }else glist.get(j).turn--;
             }
 
             // 5. 몬스터 복제 완성
@@ -127,11 +130,6 @@ public class Main {
             this.turn = 2;
             board[x][y][2]++;
         }
-
-        public void remove() {
-            if (turn == 0) board[x][y][2] -= 1;
-            else turn--;
-        }
     }
 
     static class Monster {
@@ -151,7 +149,7 @@ public class Main {
             for (int i = 0; i < 8; i++) {
                 int nx = x + mx[dir];
                 int ny = y + my[dir];
-                if (!inRange(nx, ny) || board[nx][ny][0] == 1 || board[nx][ny][2] == 1) {
+                if (!inRange(nx, ny) || board[nx][ny][0] == 1 || board[nx][ny][2] >= 1) {
                     dir = (dir + 1) % 8;
                 } else {
                     board[x][y][1] -= 1;
