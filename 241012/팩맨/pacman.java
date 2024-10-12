@@ -40,6 +40,12 @@ public class Main {
                 packman[0] += dx[p];
                 packman[1] += dy[p];
                 while (board[packman[0]][packman[1]][1] > 0) {
+                    for(Monster m : mlist) {
+                        if(m.x == packman[0] && m.y == packman[1]) {
+                            mlist.remove(m);
+                            break;
+                        }
+                    }
                     glist.add(new Ghost(packman[0], packman[1]));
                     board[packman[0]][packman[1]][1]--;
                 }
@@ -54,11 +60,12 @@ public class Main {
             // 5. 몬스터 복제 완성
             while (!mq.isEmpty()) {
                 Monster m = mq.poll();
+                mlist.add(m);
                 board[m.x][m.y][1]++;
             }
         }
 
-        System.out.println(countMonster());
+        System.out.println(mlist.size());
     }
 
     public static int init() throws Exception {
@@ -104,20 +111,11 @@ public class Main {
             int ny = c + dy[j];
             p[step] = j;
             if (!inRange(nx, ny)) continue;
-            movePackman(nx, ny, step + 1, mcnt + board[nx][ny][1], p);
+            int tmp = board[nx][ny][1];
+            board[nx][ny][1] = 0;
+            movePackman(nx, ny, step + 1, mcnt + tmp, p);
+            board[nx][ny][1] = tmp;
         }
-    }
-
-    private static int countMonster() {
-        int cnt = 0;
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (board[i][j][1] > 0) {
-                    cnt += board[i][j][1];
-                }
-            }
-        }
-        return cnt;
     }
 
     static class Ghost {
