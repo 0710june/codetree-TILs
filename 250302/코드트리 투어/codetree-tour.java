@@ -1,5 +1,4 @@
 
-
 import java.util.*;
 import java.io.*;
 
@@ -8,7 +7,7 @@ public class Main {
     static int n, m;
     static ArrayList<int[]>[] graph;
     static int[] dir;
-    static final int INF = 2000000000;
+    static final int INF = Integer.MAX_VALUE;
     static PriorityQueue<Product> recomm = new PriorityQueue<>();
     static HashMap<Integer, Product> products = new HashMap<>();
     static StringBuilder sb = new StringBuilder();
@@ -18,6 +17,7 @@ public class Main {
         int revenue;
         int dest;
         int cost;
+        int margin;
         boolean isDeleted;
 
         Product(int id, int revenue, int dest, int cost) {
@@ -25,10 +25,14 @@ public class Main {
             this.revenue = revenue;
             this.dest = dest;
             this.cost = cost;
+            if(cost == INF) this.margin = INF * -1;
+            else this.margin = this.revenue - this.cost;
         }
 
         public void changeCost(int cost) {
             this.cost = cost;
+            if(cost == INF) this.margin = INF * -1;
+            else this.margin = this.revenue - this.cost;
         }
 
         public void deleteProduct() {
@@ -37,10 +41,10 @@ public class Main {
 
         @Override
         public int compareTo(Product o) {
-            if((this.revenue-this.cost) == (o.revenue-o.cost)) {
-                return this.id - o.id;
+            if(this.margin == o.margin) {
+                return Integer.compare(this.id, o.id);
             } else {
-                return ((this.revenue-this.cost) - (o.revenue-o.cost)) * -1;
+                return Integer.compare(o.margin, this.margin);
             }
         }
     }
@@ -132,21 +136,20 @@ public class Main {
     }
 
     public static void recommProduct() {
-        boolean flag = false;
-        int cnt = recomm.size();
-        while(!recomm.isEmpty() && cnt-- > 0) {
-            Product p = recomm.poll();
-            if(p.isDeleted) continue;
-            if(p.cost == INF || p.cost > p.revenue) {
-                recomm.add(p);
+        while(!recomm.isEmpty()) {
+            Product p = recomm.peek();
+            if(p.isDeleted) {
+                recomm.poll();
+                products.remove(p.id);
                 continue;
             }
+            if(p.margin < 0) break;
+            recomm.poll();
             sb.append(p.id).append("\n");
             products.remove(p.id);
-            flag = true;
-            break;
+            return;
         }
-        if(!flag) sb.append(-1).append("\n");
+        sb.append(-1).append("\n");
     }
 
     public static void changeStart(StringTokenizer st) {
@@ -155,6 +158,7 @@ public class Main {
         dijkstra(start);
         for(int id : products.keySet()) {
             Product p = products.get(id);
+            if(p.isDeleted) continue;
             p.changeCost(dir[p.dest]);
             recomm.add(p);
         }
