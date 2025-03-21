@@ -62,8 +62,9 @@ public class Main {
             startY += dy[d];
             endX += dx[d];
             endY += dy[d];
-            damage += init();
-            hp -= damage;
+            int cnt = init();
+            damage += cnt;
+            hp -= cnt;
             if(hp <= 0) delete();
         }
     }
@@ -129,7 +130,7 @@ public class Main {
 
     public static void getMovingKnight(int idx, int d) {
         Knight knight = knights[idx];
-        if(moveList.contains(knight)) return;
+        if(knight.hp <= 0 || moveList.contains(knight)) return;
         moveList.add(knight);
 
         int startX, endX, startY, endY;
