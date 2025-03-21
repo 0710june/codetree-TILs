@@ -42,7 +42,7 @@ public class Main {
         public void delete() {
             for(int i=startX; i<=endX; i++) {
                 for(int j=startY; j<=endY; j++) {
-                    board[i][j][1] = 0;
+                    if(board[i][j][1] == idx) board[i][j][1] = 0;
                 }
             }
         }
@@ -129,6 +129,7 @@ public class Main {
 
     public static void getMovingKnight(int idx, int d) {
         Knight knight = knights[idx];
+        if(moveList.contains(knight)) return;
         moveList.add(knight);
 
         int startX, endX, startY, endY;
