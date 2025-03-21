@@ -120,7 +120,7 @@ public class Main {
         moveList = new ArrayList<>();
         getMovingKnight(idx, d);
         if(!moveList.isEmpty()) {
-            for(int i=moveList.size()-1; i>=0; i--) {
+            for(int i=0; i<moveList.size(); i++) {
                 Knight knight = moveList.get(i);
                 if(i == 0) knight.attack(d);
                 else knight.move(d);
