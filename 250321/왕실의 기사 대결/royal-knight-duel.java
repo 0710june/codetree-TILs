@@ -62,7 +62,7 @@ public class Main {
             startY += dy[d];
             endX += dx[d];
             endY += dy[d];
-            damage = init();
+            damage += init();
             hp -= damage;
             if(hp <= 0) delete();
         }
