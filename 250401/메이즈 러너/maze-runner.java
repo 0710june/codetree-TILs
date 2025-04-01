@@ -171,6 +171,7 @@ public class Main {
     public static boolean isSqure(int x, int y, int r) {
         for(int i=x; i<=x+r-1; i++) {
             for(int j=y; j<=y+r-1; j++) {
+                if(!InRange(i,j)) return false;
                 if(map[i][j][1] > 0) return true;
             }
         }
