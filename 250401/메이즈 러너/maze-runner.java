@@ -90,8 +90,7 @@ public class Main {
         int y = Integer.parseInt(st.nextToken());
         EXIT = new Point(x, y);
         map[x][y][1] = -1;
-
-        printMap(0);
+        
         for(int i=1; i<=K; i++) {
             // 1. 이동
             for(Point p : plist) {
@@ -111,8 +110,6 @@ public class Main {
 
             // 3. 회전
             rotate();
-
-            printMap(i);
         }
 
         int sum = 0;
