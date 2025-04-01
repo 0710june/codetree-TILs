@@ -91,6 +91,7 @@ public class Main {
         EXIT = new Point(x, y);
         map[x][y][1] = -1;
 
+        printMap(0);
         for(int i=1; i<=K; i++) {
             // 1. 이동
             for(Point p : plist) {
@@ -110,6 +111,8 @@ public class Main {
 
             // 3. 회전
             rotate();
+
+            printMap(i);
         }
 
         int sum = 0;
@@ -122,12 +125,27 @@ public class Main {
         System.out.print(sb.toString());
     }
 
+    public static void printMap(int time) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("[").append(time).append("초 후 최종 결과]\n");
+        for(int i=1; i<=N; i++) {
+            for(int j=1; j<=N; j++) {
+                if(map[i][j][1] > 0) sb.append(String.format("%3d ", map[i][j][1]+10));
+                else if(map[i][j][1] < 0) sb.append(String.format("%3d ", map[i][j][1]));
+                else sb.append(String.format("%3d ", map[i][j][0]));
+            }
+            sb.append("\n");
+        }
+        System.out.println(sb.toString());
+    }
+
     public static void rotate() {
         int[] p = findPoint();
         int x = p[0];
         int y = p[1];
         int r = p[2];
         int[][][] tmp = new int[r][r][2];
+        ArrayDeque<int[]> q = new ArrayDeque<>();
 
         for(int i=0; i<r; i++) {
             for(int j=0; j<r; j++) {
@@ -135,12 +153,22 @@ public class Main {
                 if(map[x+i][y+j][1] != 0) {
                     tmp[j][r-1-i][1] = map[x+i][y+j][1];
                     if(map[x+i][y+j][1] > 0) {
-                        for(Point person : plist) {
-                            if(person.equal(x+i,y+j)) person.rotate(x+j, y+r-1-i);
-                        }
+                        q.add(new int[] {x+i, y+j, x+j, y+r-1-i});
                     } else {
                         EXIT.rotate(x+j, y+r-1-i);
                     }
+                }
+            }
+        }
+
+        boolean[] isMoved = new boolean[plist.size()];
+        while(!q.isEmpty()) {
+            int[] cur = q.poll();
+            for(int i=0; i<plist.size(); i++) {
+                Point person = plist.get(i);
+                if(!isMoved[i] && person.equal(cur[0],cur[1])) {
+                    person.rotate(cur[2], cur[3]);
+                    isMoved[i] = true;
                 }
             }
         }
