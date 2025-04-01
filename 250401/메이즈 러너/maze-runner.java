@@ -92,7 +92,13 @@ public class Main {
         map[x][y][1] = -1;
 
         for(int i=1; i<=K; i++) {
-            // 1. 전원 탈출 확인
+            // 1. 이동
+            for(Point p : plist) {
+                if(p.isEscaped) continue;
+                p.move();
+            }
+
+            // 2. 전원 탈출 확인
             boolean isAllEscaped = true;
             for(Point p : plist) {
                 if(!p.isEscaped) {
@@ -102,13 +108,7 @@ public class Main {
             }
             if(isAllEscaped) break;
 
-            // 1. 이동
-            for(Point p : plist) {
-                if(p.isEscaped) continue;
-                p.move();
-            }
-
-            // 2. 회전
+            // 3. 회전
             rotate();
         }
 
@@ -154,28 +154,38 @@ public class Main {
     }
 
     public static int[] findPoint() {
-        int r = 2;
+        int r = getSqureLength();
+        for(int i=EXIT.x-r; i<=EXIT.x; i++) {
+            for(int j=EXIT.y-r; j<=EXIT.y; j++) {
+                if(isSquare(i, j, r)) return new int[] {i, j, r+1};
+            }
+        }
+        return new int[] {0, 0, 0};
+    }
+
+    public static boolean isSquare(int x, int y, int r) {
+        boolean hasPerson = false;
+        for(int i=x; i<=x+r; i++) {
+            for(int j=y; j<=y+r; j++) {
+                if(!InRange(x, y)) return false;
+                if(map[i][j][1] > 0) hasPerson = true;
+            }
+        }
+        return hasPerson;
+    }
+
+    public static int getSqureLength() {
+        int r = 1;
         while(true) {
-            for(int i=EXIT.x-r+1; i<=EXIT.x; i++) {
-                for(int j=EXIT.y-r+1; j<=EXIT.y; j++) {
+            for(int i=EXIT.x-r; i<=EXIT.x+r; i++) {
+                for(int j=EXIT.y-r; j<=EXIT.y+r; j++) {
                     if(!InRange(i,j)) continue;
-                    if(isSqure(i, j, r)) {
-                        return new int[] {i, j, r};
-                    }
+                    if(i > EXIT.x-r && i < EXIT.x+r && j > EXIT.y-r && j < EXIT.y+r) continue;
+                    if(map[i][j][1] > 0) return r;
                 }
             }
             r++;
         }
-    }
-
-    public static boolean isSqure(int x, int y, int r) {
-        for(int i=x; i<=x+r-1; i++) {
-            for(int j=y; j<=y+r-1; j++) {
-                if(!InRange(i,j)) return false;
-                if(map[i][j][1] > 0) return true;
-            }
-        }
-        return false;
     }
 
     public static int getDistToExit(int x, int y) {
