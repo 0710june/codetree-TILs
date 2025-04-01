@@ -167,7 +167,7 @@ public class Main {
         boolean hasPerson = false;
         for(int i=x; i<=x+r; i++) {
             for(int j=y; j<=y+r; j++) {
-                if(!InRange(x, y)) return false;
+                if(!InRange(i, j)) return false;
                 if(map[i][j][1] > 0) hasPerson = true;
             }
         }
