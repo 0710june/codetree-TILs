@@ -79,13 +79,14 @@ public class Main {
         for(int k=1; k<=K; k++) {
             // 1. 공격자 선정
             select(k);
-            if(attacker == target) break;
 
             // 2. 공격자 공격
             attackTarget();
 
             // 3. 포탑 정비
             repairTower();
+
+            if(towers.size() == 1) break;
         }
 
         // 가장 강한 포탑의 공격력 출력
@@ -95,7 +96,7 @@ public class Main {
     private static void printDamage() {
         int answer = 0;
         for(Tower tower : towers) {
-            if(tower.damage < answer) continue;
+            if(tower.damage <= answer) continue;
             answer = tower.damage;
         }
         System.out.print(answer);
