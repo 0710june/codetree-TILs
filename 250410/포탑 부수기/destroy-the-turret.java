@@ -11,13 +11,13 @@ public class Main {
     static int[] bx = {-1, -1, -1, 0, 0, 0, 1, 1, 1};
     static int[] by = {-1, 0, 1, -1, 0, 1, -1, 0, 1};
     static ArrayList<Tower> towers = new ArrayList<>();
-    static HashMap<Integer, Tower> towermap = new HashMap<>();
     static Tower attacker, target;
     static ArrayList<int[]> attackPoint;
 
     static class Tower implements Comparable<Tower> {
         int x, y, damage, turn, sum;
         boolean isDestroied;
+        boolean isUsed;
 
         Tower(int x, int y, int damage) {
             this.x = x;
@@ -45,12 +45,14 @@ public class Main {
             }
 
             map[x][y] = damage;
+            isUsed = true;
         }
 
         public void selected(int turn) {
             this.turn = turn;
             damage += N + M;
             map[x][y] = damage;
+            isUsed = true;
         }
 
         public void repaired() {
@@ -60,13 +62,12 @@ public class Main {
     }
 
     static class Point {
-        int x, y, d;
+        int x, y;
         ArrayList<int[]> path;
 
-        Point(int x, int y, int d, ArrayList<int[]> path) {
+        Point(int x, int y, ArrayList<int[]> path) {
             this.x = x;
             this.y = y;
-            this.d = d;
             this.path = path;
         }
     }
@@ -94,31 +95,33 @@ public class Main {
     private static void printDamage() {
         int answer = 0;
         for(Tower tower : towers) {
-            if(tower.isDestroied || tower.damage < answer) continue;
+            if(tower.damage < answer) continue;
             answer = tower.damage;
         }
         System.out.print(answer);
     }
 
     private static void repairTower() {
-        attackPoint.add(new int[] {attacker.x, attacker.y});
-        HashSet<Integer> keySet = new HashSet<>(towermap.keySet());
-        for(int[] point : attackPoint) {
-            int key = point[0] * M + point[1];
-            keySet.remove(key);
-        }
-
-        for(int key : keySet) {
-            if(towermap.get(key).isDestroied) continue;
-            towermap.get(key).repaired();
+        for(int i=towers.size()-1; i>=0; i--) {
+            Tower tower = towers.get(i);
+            if(tower.isDestroied) towers.remove(i);
+            else if(tower.isUsed) tower.isUsed = false;
+            else tower.repaired();
         }
     }
 
     private static void attackTarget() {
         attackPoint = new ArrayList<>();
         if(!canLaser()) canBomb();
-        for(int[] path : attackPoint) {
-            towermap.get(path[0] * M + path[1]).damaged();
+
+        for(int[] point : attackPoint) {
+            int x = point[0];
+            int y = point[1];
+            for(Tower tower : towers) {
+                if(x == tower.x && y == tower.y) {
+                    tower.damaged();
+                }
+            }
         }
     }
 
@@ -138,10 +141,8 @@ public class Main {
 
     private static boolean canLaser() {
         boolean[][] visited = new boolean[N][M];
-        PriorityQueue<Point> q = new PriorityQueue<>(
-                (p1, p2) -> p1.d - p2.d
-        );
-        q.add(new Point(attacker.x, attacker.y, 0, new ArrayList<>()));
+        ArrayDeque<Point> q = new ArrayDeque<>();
+        q.add(new Point(attacker.x, attacker.y, new ArrayList<>()));
         visited[attacker.x][attacker.y] = true;
 
         while(!q.isEmpty()) {
@@ -159,7 +160,7 @@ public class Main {
                 if(map[nx][ny] == 0 || visited[nx][ny]) continue;
                 ArrayList<int[]> npath = new ArrayList<>(cur.path);
                 npath.add(new int[] {nx, ny});
-                q.add(new Point(nx, ny, i, npath));
+                q.add(new Point(nx, ny, npath));
                 visited[nx][ny] = true;
             }
         }
@@ -169,18 +170,11 @@ public class Main {
 
     private static void select(int turn) {
         Collections.sort(towers);
-        int idx = 0;
-        while(idx < towers.size() && towers.get(idx).isDestroied) {
-            idx++;
-        }
-        attacker = towers.get(idx);
+
+        attacker = towers.get(0);
         attacker.selected(turn);
 
-        idx = towers.size()-1;
-        while(idx >= 0 && towers.get(idx).isDestroied) {
-            idx--;
-        }
-        target = towers.get(idx);
+        target = towers.get(towers.size()-1);
     }
 
     private static void init() throws Exception {
@@ -196,11 +190,7 @@ public class Main {
             st = new StringTokenizer(br.readLine());
             for(int j=0; j<M; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
-                if(map[i][j] > 0) {
-                    Tower tower = new Tower(i, j, map[i][j]);
-                    towers.add(tower);
-                    towermap.put(i*M+j, tower);
-                }
+                if(map[i][j] > 0) towers.add(new Tower(i, j, map[i][j]));
             }
         }
     }
