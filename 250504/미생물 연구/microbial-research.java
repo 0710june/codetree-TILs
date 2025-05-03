@@ -20,7 +20,6 @@ public class Main {
         N = Integer.parseInt(st.nextToken());
         Q = Integer.parseInt(st.nextToken());
         board = new int[N][N];
-        microCnt = new int[Q+1];
         StringBuilder sb = new StringBuilder();
 
         for(int q=1; q<=Q; q++) {
@@ -95,21 +94,21 @@ public class Main {
     }
 
     private static void move(int q, int[][] tmp) {
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        for(int[] point : micros.get(q)) {
+            minX = Math.min(minX, point[0]);
+            minY = Math.min(minY, point[1]);
+        }
+
         for(int i=0; i<N; i++) {
             for(int j=0; j<N; j++) {
-                if(tmp[i][j] != 0) continue;
-
-                int minX = Integer.MAX_VALUE;
-                int minY = Integer.MAX_VALUE;
-                for(int[] point : micros.get(q)) {
-                    minX = Math.min(minX, point[0]-i);
-                    minY = Math.min(minY, point[1]-j);
-                }
-
-                if(canMove(q, minX, minY, tmp)) {
+                int offsetX = i - minX;
+                int offsetY = j - minY;
+                if(canMove(q, offsetX, offsetY, tmp)) {
                     for(int[] point : micros.get(q)) {
-                        int nx = point[0] - minX;
-                        int ny = point[1] - minY;
+                        int nx = point[0] + offsetX;
+                        int ny = point[1] + offsetY;
                         tmp[nx][ny] = q;
                     }
                     return;
@@ -121,8 +120,8 @@ public class Main {
 
     private static boolean canMove(int q, int minX, int minY, int[][] tmp) {
         for(int[] point : micros.get(q)) {
-            int nx = point[0] - minX;
-            int ny = point[1] - minY;
+            int nx = point[0] + minX;
+            int ny = point[1] + minY;
             if(!inRange(nx, ny) || tmp[nx][ny] != 0) return false;
         }
         return true;
@@ -132,10 +131,11 @@ public class Main {
         visited = new boolean[N][N];
         micros = new HashMap<>();
         deleteMicro = new HashSet<>();
+        microCnt = new int[Q+1];
 
         for(int i=0; i<N; i++) {
             for(int j=0; j<N; j++) {
-                if(visited[i][j]) continue;
+                if(visited[i][j] || board[i][j] == 0) continue;
                 bfs(i, j);
             }
         }
