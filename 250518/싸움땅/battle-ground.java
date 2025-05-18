@@ -62,11 +62,10 @@ public class Main {
             nx = p.x + dx[p.d];
             ny = p.y + dy[p.d];
         }
-
+        p.x = nx;
+        p.y = ny;
         // 플레이어가 없다면 총 획득
         if(map[nx][ny] == 0) {
-            p.x = nx;
-            p.y = ny;
             map[p.x][p.y] = p.idx;
             PriorityQueue<Integer> guns = gunsInMap.get(getKey(nx, ny));
             if(guns.isEmpty()) return;
@@ -86,8 +85,6 @@ public class Main {
         }
         // 플레이어가 있다면 싸움
         else {
-            p.x = nx;
-            p.y = ny;
             fight(p, players.get(map[nx][ny] - 1));
         }
     }
@@ -134,11 +131,15 @@ public class Main {
 
     private static void moveLoser(Player loser) {
         // 총 내려놓기
-        PriorityQueue<Integer> guns = gunsInMap.get(getKey(loser.x, loser.y));
-        guns.add(loser.g);
-        loser.g = 0;
+        PriorityQueue<Integer> guns;
+        if(loser.g != 0) {
+            guns = gunsInMap.get(getKey(loser.x, loser.y));
+            guns.add(loser.g);
+            loser.g = 0;
+        }
 
         // 이동
+        map[loser.x][loser.y] = 0;
         int nx = loser.x + dx[loser.d];
         int ny = loser.y + dy[loser.d];
         while(!inRange(nx, ny) || map[nx][ny] != 0) {
