@@ -108,11 +108,11 @@ public class Main {
             if(p1Power > p2Power) {
                 winner = p1;
                 loser = p2;
-                winner.p = p1Power - p2Power;
+                winner.p += p1Power - p2Power;
             }else {
                 winner = p2;
                 loser = p1;
-                winner.p = p2Power - p1Power;
+                winner.p += p2Power - p1Power;
             }
         }
 
