@@ -27,6 +27,8 @@ public class Main {
             moveRail();
 
             throwBall(round);
+
+            //System.out.println(round+" "+answer);
         }
 
         System.out.print(answer);
@@ -107,7 +109,9 @@ public class Main {
     }
 
     private static void throwBall(int round) {
-        round %= (n * 4);
+        // 여기서 틀림
+        // round %= (n * 4);
+        round = (round - 1) % (n * 4) + 1;
 
         if(round <= n) {
             // 왼쪽에서 오른쪽
