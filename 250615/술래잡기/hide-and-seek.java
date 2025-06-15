@@ -29,20 +29,48 @@ public class Main {
         }
 
         public void move() {
-            if(!isRev) {
-                x += dx[d];
-                y += dy[d];
-            }else{
-                x += rx[d];
-                y += ry[d];
+            x += dx[d];
+            y += dy[d];
+
+            if(x == 1 && y == 1) {
+                isRev = !isRev;
+                cnt = n-1;
+                turn = 1;
+                moveCnt = n;
+                d = 0;
+                return;
             }
-            if((x == 0 && y == 0) || x == n/2 && y == n/2) isRev = !isRev;
 
             cnt -= 1;
             if(cnt == 0) {
                 turn -= 1;
                 if (turn == 0) {
                     moveCnt += 1;
+                    turn = 2;
+                }
+                cnt = moveCnt;
+                d = (d + 1) % 4;
+            }
+        }
+
+        public void moveRev() {
+            x += rx[d];
+            y += ry[d];
+
+            if(x == n/2+1 && y == n/2+1) {
+                isRev = !isRev;
+                cnt = 1;
+                turn = 2;
+                moveCnt = 1;
+                d = 0;
+                return;
+            }
+
+            cnt -= 1;
+            if(cnt == 0) {
+                turn -= 1;
+                if (turn == 0) {
+                    moveCnt -= 1;
                     turn = 2;
                 }
                 cnt = moveCnt;
@@ -107,10 +135,12 @@ public class Main {
     public static void main(String[] args) throws Exception {
         init();
 
+//        System.out.println(tagger.x+" : "+tagger.y);
         for(int i=1; i<=k; i++) {
             moveFugitives();
 
             moveTagger(i);
+//            System.out.println(tagger.x+" : "+tagger.y);
 
             if(isOver()) break;
         }
@@ -154,8 +184,10 @@ public class Main {
     }
 
     private static void moveTagger(int turn) {
-        tagger.move();
+        if(!tagger.isRev) tagger.move();
+        else tagger.moveRev();
         int score = tagger.catchFugitives();
+//        System.out.println(turn+"턴 : "+(turn*score));
         answer += turn * score;
     }
 
