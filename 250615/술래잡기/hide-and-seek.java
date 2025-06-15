@@ -1,0 +1,174 @@
+import java.util.*;
+import java.io.*;
+
+// 술래잡기
+public class Main {
+
+    static int n, m, h, k;
+    static int[][] board;
+    static boolean[][] tree;
+    static int[] dx = {-1, 0, 1, 0};
+    static int[] dy = {0, 1, 0, -1};
+    static ArrayList<Fugitive> fugitives = new ArrayList<>();
+    static int answer;
+    static Tagger tagger;
+
+    static class Tagger {
+        int x, y, d;
+        boolean isRev;
+        int cnt,  turn, moveCnt;
+        int[] rx = {1, 0, -1, 0};
+        int[] ry = {0, 1, 0, -1};
+
+        Tagger(int x, int y) {
+            this.x = x;
+            this.y = y;
+            cnt = 1;
+            turn = 2;
+            moveCnt = 1;
+        }
+
+        public void move() {
+            if(!isRev) {
+                x += dx[d];
+                y += dy[d];
+            }else{
+                x += rx[d];
+                y += ry[d];
+            }
+            if((x == 0 && y == 0) || x == n/2 && y == n/2) isRev = !isRev;
+
+            cnt -= 1;
+            if(cnt == 0) {
+                turn -= 1;
+                if (turn == 0) {
+                    moveCnt += 1;
+                    turn = 2;
+                }
+                cnt = moveCnt;
+                d = (d + 1) % 4;
+            }
+        }
+
+        public int catchFugitives() {
+            int cnt = 0;
+            int nx = x, ny = y;
+            while(true) {
+                if(!isRev) {
+                    nx += dx[d];
+                    ny += dy[d];
+                } else {
+                    nx += rx[d];
+                    ny += ry[d];
+                }
+
+                if(!inRange(nx, ny)) break;
+                if(tree[nx][ny] || board[nx][ny] == 0) continue;
+
+                cnt += board[nx][ny];
+                for(Fugitive f : fugitives) {
+                    if(f.x == nx && f.y == ny) f.isCaught = true;
+                }
+                board[nx][ny] = 0;
+            }
+            return cnt;
+        }
+    }
+
+    static class Fugitive {
+        int x, y, d;
+        boolean isCaught;
+
+        Fugitive(int x, int y, int d) {
+            this.x = x;
+            this.y = y;
+            this.d = d;
+        }
+
+        public void move() {
+            if(isCaught || !canMove()) return;
+            int nx = x + dx[d];
+            int ny = y + dy[d];
+            if(!inRange(nx, ny)) d = (d + 2) % 4;
+            nx = x + dx[d];
+            ny = y + dy[d];
+            if(nx == tagger.x && ny == tagger.y) return;
+            board[x][y] -= 1;
+            board[nx][ny] += 1;
+            x = nx;
+            y = ny;
+        }
+
+        private boolean canMove() {
+            return Math.abs(x - tagger.x) + Math.abs(y - tagger.y) <= 3;
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        init();
+
+        for(int i=1; i<=k; i++) {
+            moveFugitives();
+
+            moveTagger(i);
+
+            if(isOver()) break;
+        }
+
+        System.out.print(answer);
+    }
+
+    private static void init() throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        n = Integer.parseInt(st.nextToken());
+        m = Integer.parseInt(st.nextToken());
+        h = Integer.parseInt(st.nextToken());
+        k = Integer.parseInt(st.nextToken());
+
+        board = new int[n+1][n+1];
+        tree = new boolean[n+1][n+1];
+        tagger = new Tagger(n/2+1, n/2+1);
+
+        for(int i=0; i<m; i++) {
+            st = new StringTokenizer(br.readLine());
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+            int d = Integer.parseInt(st.nextToken());
+            fugitives.add(new Fugitive(x, y, d));
+            board[x][y] += 1;
+        }
+
+        for(int i=0; i<h; i++) {
+            st = new StringTokenizer(br.readLine());
+            int x = Integer.parseInt(st.nextToken());
+            int y = Integer.parseInt(st.nextToken());
+            tree[x][y] = true;
+        }
+    }
+
+    private static void moveFugitives() {
+        for(Fugitive f : fugitives) {
+            f.move();
+        }
+    }
+
+    private static void moveTagger(int turn) {
+        tagger.move();
+        int score = tagger.catchFugitives();
+        answer += turn * score;
+    }
+
+    private static boolean isOver() {
+        for(int i=1; i<=n; i++) {
+            for(int j=1; j<=n; j++) {
+                if(board[i][j] > 0) return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean inRange(int x, int y) {
+        return x >= 1 && x <= n && y >= 1 && y <= n;
+    }
+}
