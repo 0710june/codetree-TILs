@@ -9,6 +9,8 @@ public class Main {
     static boolean[][] tree;
     static int[] dx = {-1, 0, 1, 0};
     static int[] dy = {0, 1, 0, -1};
+    static int[] rx = {1, 0, -1, 0};
+    static int[] ry = {0, 1, 0, -1};
     static ArrayList<Fugitive> fugitives = new ArrayList<>();
     static int answer;
     static Tagger tagger;
@@ -17,8 +19,6 @@ public class Main {
         int x, y, d;
         boolean isRev;
         int cnt,  turn, moveCnt;
-        int[] rx = {1, 0, -1, 0};
-        int[] ry = {0, 1, 0, -1};
 
         Tagger(int x, int y) {
             this.x = x;
@@ -80,24 +80,26 @@ public class Main {
 
         public int catchFugitives() {
             int cnt = 0;
-            int nx = x, ny = y;
-            while(true) {
-                if(!isRev) {
-                    nx += dx[d];
-                    ny += dy[d];
-                } else {
-                    nx += rx[d];
-                    ny += ry[d];
+            int tx = x, ty = y;
+            for(int i=0; i<3; i++) {
+                if(i != 0) {
+                    if(!isRev) {
+                        tx += dx[d];
+                        ty += dy[d];
+                    } else {
+                        tx += rx[d];
+                        ty += ry[d];
+                    }
                 }
 
-                if(!inRange(nx, ny)) break;
-                if(tree[nx][ny] || board[nx][ny] == 0) continue;
+                if(!inRange(tx, ty)) break;
+                if(tree[tx][ty] || board[tx][ty] == 0) continue;
 
-                cnt += board[nx][ny];
+                cnt += board[tx][ty];
                 for(Fugitive f : fugitives) {
-                    if(f.x == nx && f.y == ny) f.isCaught = true;
+                    if(f.x == tx && f.y == ty) f.isCaught = true;
                 }
-                board[nx][ny] = 0;
+                board[tx][ty] = 0;
             }
             return cnt;
         }
